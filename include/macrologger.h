@@ -27,6 +27,7 @@
 #ifdef __OBJC__
 #import <Foundation/Foundation.h>
 #else
+#include <stdlib.h>
 #include <time.h>
 #include <string.h>
 #endif
@@ -41,7 +42,7 @@ enum {
   ERROR_LEVEL,
   INFO_LEVEL,
   DEBUG_LEVEL
-}
+};
 
 #ifndef LOG_LEVEL
 #define LOG_LEVEL   DEBUG_LEVEL
@@ -91,11 +92,14 @@ enum {
 #endif
 
 #if LOG_LEVEL >= ERROR_LEVEL
-#define LOG_ERROR(message, args...)     PRINTFUNCTION(LOG_FMT message NEWLINE, LOG_ARGS(ERROR_TAG), ## args); exit(1)
+#define LOG_ERROR(message, args...)					      \
+({									      \
+	PRINTFUNCTION(LOG_FMT message NEWLINE, LOG_ARGS(ERROR_TAG), ## args); \
+	exit(1);							      \
+})
 #else
 #define LOG_ERROR(message, args...)
 #endif
-
 
 #if LOG_LEVEL >= NO_LOGS
 #define LOG_IF_ERROR(condition, message, args...) if (condition) PRINTFUNCTION(LOG_FMT message NEWLINE, LOG_ARGS(ERROR_TAG), ## args)
