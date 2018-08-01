@@ -1,4 +1,4 @@
-sources = src/editor.c src/terminal_modes.c
+sources = src/common.c src/terminal_modes.c src/key.c src/window.c src/editor.c
 CC = gcc
 
 CFLAGS = -Wall
