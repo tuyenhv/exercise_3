@@ -7,7 +7,7 @@
 
 struct config E;
 //extern void ab_append(struct abuf *ab, const char *s, int len);
-void draw_rows(struct abuf *ab) {
+static void draw_rows(struct abuf *ab) {
   int y;
   for (y = 0; y < E.screen_rows; y++){
     ab_append(ab, "~", 1);
