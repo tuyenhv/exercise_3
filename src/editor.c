@@ -22,9 +22,12 @@ void ab_free(struct abuf *ab) {
   free(ab->b);
 }
 
-int main() {
+int main(int argc, char *argv[]) {
   enable_rawmode();
   init_editor();
+  if (argc >= 2)
+    editor_open(argv[1]);
+
   while (1) {
     refresh_screen();
     process_pressed_key();

@@ -2,6 +2,9 @@
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
+#include <sys/types.h>
+#include <stdlib.h>
 #include "../include/window.h"
 #include "../include/common.h"
 
@@ -11,8 +14,29 @@ struct config E;
 /* Draw a column of tildes (~) on the left hand side of the screen */
 static void draw_rows(struct abuf *ab) {
   int y;
-  for (y = 0; y < E.screen_rows; y++){
-    ab_append(ab, "~", 1);
+  for (y = 0; y < E.screen_rows; y++) {
+    if (y >= E.num_rows) {
+      if (E.num_rows == 0 && y == E.screen_rows / 3) {
+        char welcome[80];
+        int welcomelen = snprintf(welcome, sizeof(welcome),
+          "Welcome to the minimal editor");
+        if (welcomelen > E.screen_cols) welcomelen = E.screen_cols;
+        int padding = (E.screen_cols - welcomelen) / 2;
+        if (padding) {
+          ab_append(ab, "~", 1);
+          padding--;
+        }
+        while (padding--) ab_append(ab, " ", 1);
+        ab_append(ab, welcome, welcomelen);
+      } else {
+        ab_append(ab, "~", 1);
+      }
+    } else {
+      int len = E.row[y].size;
+      if (len > E.screen_cols)
+        len = E.screen_cols;
+      ab_append(ab, E.row[y].chars, len);
+    }
 
     ab_append(ab, "\x1b[K", 3);
     if (y < E.screen_rows - 1){
@@ -29,14 +53,15 @@ void refresh_screen(void) {
   ab_append(&ab, "\x1b[H", 3);
 
   draw_rows(&ab);
+  char buf[32];
+  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + 1);
+  ab_append(&ab, buf, strlen(buf));
 
-  ab_append(&ab, "\x1b[H", 3);
   ab_append(&ab, "\x1b[?25h", 6);
 
   write(STDOUT_FILENO, ab.b, ab.len);
   ab_free(&ab);
 }
-
 
 static int get_cursor_position(int *rows, int *cols) {
   char buf[32];
@@ -71,5 +96,37 @@ static int get_window_size(int *rows, int *cols) {
 }
 
 void init_editor(void) {
+  E.cx = 0;
+  E.cy = 0;
+  E.num_rows = 0;
+  E.row = NULL;
+
   if (get_window_size(&E.screen_rows, &E.screen_cols) == -1) die("get_window_size");
+}
+
+static void append_row(char *s, size_t len) {
+  E.row = realloc(E.row, sizeof(erow_t) * (E.num_rows + 1));
+  int at = E.num_rows;
+  E.row[at].size = len;
+  E.row[at].chars = malloc(len + 1);
+  memcpy(E.row[at].chars, s, len);
+  E.row[at].chars[len] = '\0';
+  E.num_rows++;
+}
+
+void editor_open(char *filename) {
+  FILE *fp = fopen(filename, "r");
+  if (!fp) die("fopen: Cannot open the file");
+
+  char *line = NULL;
+  size_t line_cap = 0;
+  ssize_t line_len;
+  while ((line_len = getline(&line, &line_cap, fp)) != -1) {
+    while (line_len > 0 && (line[line_len - 1] == '\n' || line[line_len - 1] == '\r')) {
+      line_len--;
+    }
+    append_row(line, line_len);
+  }
+  free(line);
+  fclose(fp);
 }
