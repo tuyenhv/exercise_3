@@ -5,19 +5,21 @@
 #include <termios.h>
 #include <unistd.h>
 #include "../include/common.h"
-#include "../include/terminal_modes.h"
 
-void disable_rawmode(void){
+/* Restore to the original terminal mode */
+static void disable_rawmode(void){
   if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig_termios) == -1)
     die("tcsetattr");
 }
 
 void enable_rawmode(void){
   if (tcgetattr(STDIN_FILENO, &E.orig_termios) == -1) die("tcgetattr");
+  /* Before exit the program, we need to revert to the cooked terminal mode */
   atexit(disable_rawmode);
   struct termios raw = E.orig_termios;
-  
-  /* Explanation for features with each flag: **********************************
+
+  /*
+   * Explanation for features with each flag:
    * The below is flags and the meaning will change from on to off if we change
    * the value of flags.
    * ECHO: Print what you typed to the terminal.
@@ -33,7 +35,7 @@ void enable_rawmode(void){
    * INPCK: Enable parity checking.
    * ISTRIP: causes the 8th bit of each input byte to be stripped.
    * CS8: is not a flag. It sets the character size (CS) to 8 bits per byte.
-   ****************************************************************************/
+   */
   raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
   raw.c_oflag &= ~(OPOST);
   raw.c_cflag |= (CS8);
