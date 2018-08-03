@@ -7,7 +7,7 @@
 #include "../include/common.h"
 #include "../include/window.h"
 
-extern void init_editor(void);
+void init_editor(void);
 extern void enable_rawmode(void);
 void process_pressed_key(void);
 

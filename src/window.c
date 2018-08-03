@@ -7,6 +7,8 @@
 
 struct config E;
 //extern void ab_append(struct abuf *ab, const char *s, int len);
+
+/* Draw a column of tildes (~) on the left hand side of the screen */
 static void draw_rows(struct abuf *ab) {
   int y;
   for (y = 0; y < E.screen_rows; y++){
@@ -54,7 +56,8 @@ int get_cursor_position(int *rows, int *cols) {
   return 0;
 }
 
-int get_window_size(int *rows, int *cols) {
+/* Get the size of the terminal */
+static int get_window_size(int *rows, int *cols) {
   struct winsize ws;
 
   if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
