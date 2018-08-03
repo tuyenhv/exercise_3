@@ -3,6 +3,5 @@
 
 void refresh_screen(void);
 void init_editor(void);
-int get_cursor_position(int *, int *);
 
 #endif

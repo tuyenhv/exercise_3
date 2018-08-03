@@ -38,7 +38,7 @@ void refresh_screen(void) {
 }
 
 
-int get_cursor_position(int *rows, int *cols) {
+static int get_cursor_position(int *rows, int *cols) {
   char buf[32];
   unsigned int i = 0;
 
