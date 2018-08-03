@@ -4,7 +4,6 @@
 #include <ctype.h>
 #include "../include/window.h"
 #include "../include/common.h"
-#include "../include/key.h"
 
 struct config E;
 //extern void ab_append(struct abuf *ab, const char *s, int len);

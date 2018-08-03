@@ -6,11 +6,11 @@
 #include <termios.h>
 #include <unistd.h>
 #include "../include/common.h"
-#include "../include/key.h"
 #include "../include/window.h"
 
 extern void init_editor(void);
 extern void enable_rawmode(void);
+void process_pressed_key(void);
 
 void ab_append(struct abuf *ab, const char *s, int len) {
   char *new = realloc(ab->b, ab->len + len);

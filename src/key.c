@@ -3,9 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../include/common.h"
-#include "../include/key.h"
 
-char read_key(void) {
+static char read_key(void) {
   int nread;
   char c;
   while ((nread = read(STDIN_FILENO, &c, 1)) != 1) {
