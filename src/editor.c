@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "../include/common.h"
-#include "../include/window.h"
+#include "../inc/common.h"
+#include "../inc/window.h"
 
 void init_editor(void);
 extern void enable_rawmode(void);

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "../include/common.h"
+#include "../inc/common.h"
 
 /* Restore to the original terminal mode */
 static void disable_rawmode(void){

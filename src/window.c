@@ -5,8 +5,8 @@
 #include <string.h>
 #include <sys/types.h>
 #include <stdlib.h>
-#include "../include/window.h"
-#include "../include/common.h"
+#include "../inc/window.h"
+#include "../inc/common.h"
 
 struct config E;
 //extern void ab_append(struct abuf *ab, const char *s, int len);

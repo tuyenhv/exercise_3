@@ -2,7 +2,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "../include/common.h"
+#include "../inc/common.h"
 
 static int read_key(void) {
   int nread;

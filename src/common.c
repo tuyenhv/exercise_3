@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "../include/common.h"
+#include "../inc/common.h"
 
 void die(const char *s) {
   /* Clear the screen before exitting */
