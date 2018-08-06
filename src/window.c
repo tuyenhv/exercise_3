@@ -15,7 +15,8 @@ struct config E;
 static void draw_rows(struct abuf *ab) {
   int y;
   for (y = 0; y < E.screen_rows; y++) {
-    if (y >= E.num_rows) {
+    int file_row = y + E.rowoff;
+    if (file_row >= E.num_rows) {
       if (E.num_rows == 0 && y == E.screen_rows / 3) {
         char welcome[80];
         int welcomelen = snprintf(welcome, sizeof(welcome),
@@ -32,10 +33,12 @@ static void draw_rows(struct abuf *ab) {
         ab_append(ab, "~", 1);
       }
     } else {
-      int len = E.row[y].size;
+      int len = E.row[file_row].rsize - E.coloff;
+      if (len < 0)
+        len = 0;
       if (len > E.screen_cols)
         len = E.screen_cols;
-      ab_append(ab, E.row[y].chars, len);
+      ab_append(ab, &E.row[file_row].render[E.coloff], len);
     }
 
     ab_append(ab, "\x1b[K", 3);
@@ -45,8 +48,25 @@ static void draw_rows(struct abuf *ab) {
   }
 }
 
+static void scroll(void){
+  if (E.cy < E.rowoff) {
+    E.rowoff = E.cy;
+  }
+  if (E.cy >= E.rowoff + E.screen_rows) {
+    E.rowoff = E.cy - E.screen_rows + 1;
+  }
+  if (E.cx < E.coloff) {
+    E.coloff = E.cx;
+  }
+  if (E.cx >= E.coloff + E.screen_cols) {
+    E.coloff = E.cx - E.screen_cols + 1;
+  }
+}
+
 /* clear the screen */
 void refresh_screen(void) {
+  scroll();
+
   struct abuf ab = ABUF_INIT;
 
   ab_append(&ab, "\x1b[?25l", 6);
@@ -54,7 +74,7 @@ void refresh_screen(void) {
 
   draw_rows(&ab);
   char buf[32];
-  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + 1);
+  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy - E.rowoff + 1, E.cx - E.coloff + 1);
   ab_append(&ab, buf, strlen(buf));
 
   ab_append(&ab, "\x1b[?25h", 6);
@@ -98,10 +118,42 @@ static int get_window_size(int *rows, int *cols) {
 void init_editor(void) {
   E.cx = 0;
   E.cy = 0;
+  E.rowoff = 0;
+  E.coloff = 0;
   E.num_rows = 0;
   E.row = NULL;
 
   if (get_window_size(&E.screen_rows, &E.screen_cols) == -1) die("get_window_size");
+}
+
+static void update_row(erow_t *row) {
+  int tabs = 0;
+  int j;
+  for (j = 0; j < row->size; j++)
+    if (row->chars[j] == '\t') tabs++;
+
+  free(row->render);
+  printf ("row->size = %d, tabs = %d \r\n", row->size, tabs);
+  row->render = malloc((row->size) + tabs * (TAB_STOP - 1) + 1);
+  if (row->render == NULL) {
+    printf("malloc failed. \r\n");
+  } else {
+    printf("malloc passed. \r\n");
+  }
+
+  int idx = 0;
+  for (j = 0; j < row->size; j++) {
+    if (row->chars[j] == 't') {
+      row->render[idx++] = ' ';
+      while (idx % TAB_STOP != 0) {
+        row->render[idx++] = ' ';
+      }
+    } else {
+      row->render[idx++] = row->chars[j];
+    }
+  }
+  row->render[idx] = '\0';
+  row->rsize = idx;
 }
 
 static void append_row(char *s, size_t len) {
@@ -111,6 +163,11 @@ static void append_row(char *s, size_t len) {
   E.row[at].chars = malloc(len + 1);
   memcpy(E.row[at].chars, s, len);
   E.row[at].chars[len] = '\0';
+
+  E.row[at].rsize = 0;
+  E.row[at].render = NULL;
+  update_row(&E.row[at]);
+
   E.num_rows++;
 }
 

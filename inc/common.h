@@ -5,10 +5,13 @@
 
 #define CTRL_KEY(k) ((k) & 0x1f)
 #define ABUF_INIT {NULL, 0}
+#define TAB_STOP 8
 
 typedef struct erow {
   int size;
+  int rsize;
   char *chars;
+  char *render;
 } erow_t;
 
 enum editorKey {
@@ -25,6 +28,7 @@ enum editorKey {
 
 struct config {
   int cx, cy;
+  int rowoff, coloff;
   int screen_rows;
   int screen_cols;
   int num_rows;

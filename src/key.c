@@ -54,24 +54,39 @@ static int read_key(void) {
 
 /* Allow user move cursor using keys. */
 static void move_cursor(int key) {
+  erow_t *row = (E.cy >= E.num_rows) ? NULL : &E.row[E.cy];
+
   switch (key) {
     case ARROW_LEFT:
       if (E.cx != 0)
         E.cx--;
+      else if (E.cy > 0) {
+        E.cy--;
+        E.cx = E.row[E.cy].size;
+      }
       break;
     case ARROW_RIGHT:
-      if (E.cx != E.screen_cols - 1)
+      if (row && E.cx < row->size)
         E.cx++;
+      else if (row && E.cx == row->size) {
+        E.cy++;
+        E.cx = 0;
+      }
       break;
     case ARROW_UP:
       if (E.cy != 0)
         E.cy--;
       break;
     case ARROW_DOWN:
-      if (E.cy != E.screen_rows - 1)
+      if (E.cy < E.num_rows)
         E.cy++;
       break;
   }
+
+  row = (E.cy >= E.num_rows) ? NULL : &E.row[E.cy];
+  int rowlen = row ? row->size : 0;
+  if (E.cx > rowlen)
+    E.cx =rowlen;
 }
 
 void process_pressed_key(void) {
