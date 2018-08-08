@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include "../inc/common.h"
 #include "../inc/window.h"
 
@@ -68,7 +69,7 @@ void save(void) {
 
 void set_status_message (const char *fmt, ...) {
   va_list ap;
-  var_start(ap, fmt);
+  va_start(ap, fmt);
   vsnprintf(E.status_msg, sizeof(E.status_msg), fmt, ap);
   va_end(ap);
   E.status_msg_time = time(NULL);

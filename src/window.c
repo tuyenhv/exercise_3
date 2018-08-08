@@ -105,6 +105,15 @@ static void draw_status_bar(struct abuf *ab) {
   ab_append(ab, "\r\n", 2);
 }
 
+void draw_message_bar(struct abuf *ab) {
+  ab_append(ab, "\x1b[K", 3);
+  int msg_len = strlen(E.status_msg);
+  if (msg_len > E.screen_cols)
+    msg_len = E.screen_cols;
+  if (msg_len && time(NULL) - E.status_msg_time < 5)
+    ab_append(ab, E.status_msg, msg_len);
+}
+
 /* clear the screen */
 void refresh_screen(void) {
   scroll();
@@ -116,6 +125,7 @@ void refresh_screen(void) {
 
   draw_rows(&ab);
   draw_status_bar(&ab);
+  draw_message_bar(&ab);
 
   char buf[32];
   snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy - E.rowoff + 1, E.rx - E.coloff + 1);
@@ -172,7 +182,7 @@ void init_editor(void) {
   E.status_msg_time = 0;
 
   if (get_window_size(&E.screen_rows, &E.screen_cols) == -1) die("get_window_size");
-  E.screen_rows -= 1;
+  E.screen_rows -= 2;
 }
 
 void update_row(erow_t *row) {

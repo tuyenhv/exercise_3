@@ -3,4 +3,6 @@
 
 void insert_char(int c);
 void save(void);
+void set_status_message (const char *fmt, ...);
+
 #endif

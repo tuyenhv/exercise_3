@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include "../inc/common.h"
 #include "../inc/window.h"
+#include "../inc/text.h"
 
 void init_editor(void);
 extern void enable_rawmode(void);
@@ -29,7 +30,7 @@ int main(int argc, char *argv[]) {
     editor_open(argv[1]);
 
   set_status_message("HELP: Ctrl-Q = quit");
-  
+
   while (1) {
     refresh_screen();
     process_pressed_key();
