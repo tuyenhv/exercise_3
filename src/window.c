@@ -48,18 +48,37 @@ static void draw_rows(struct abuf *ab) {
   }
 }
 
+static int row_cx_to_rx (erow_t *row, int cx) {
+  int rx = 0;
+  int j;
+  for (j = 0; j < cx; j++) {
+    if (row->chars[j] == '\t')
+      rx += (TAB_STOP - 1) - (rx % TAB_STOP);
+    rx++;
+  }
+  return rx;
+}
+
 static void scroll(void){
+  E.rx = 0;
+  if (E.cy < E.num_rows) {
+    E.rx = row_cx_to_rx(&E.row[E.cy], E.cx);
+  }
+  
   if (E.cy < E.rowoff) {
     E.rowoff = E.cy;
   }
   if (E.cy >= E.rowoff + E.screen_rows) {
     E.rowoff = E.cy - E.screen_rows + 1;
   }
-  if (E.cx < E.coloff) {
-    E.coloff = E.cx;
+  if (E.rx < E.coloff) {
+    E.coloff = E.rx;
   }
-  if (E.cx >= E.coloff + E.screen_cols) {
-    E.coloff = E.cx - E.screen_cols + 1;
+  if (E.rx < E.coloff) {
+    E.coloff = E.rx;
+  }
+  if (E.rx >= E.coloff + E.screen_cols) {
+    E.coloff = E.rx - E.screen_cols + 1;
   }
 }
 
@@ -74,7 +93,7 @@ void refresh_screen(void) {
 
   draw_rows(&ab);
   char buf[32];
-  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy - E.rowoff + 1, E.cx - E.coloff + 1);
+  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy - E.rowoff + 1, E.rx - E.coloff + 1);
   ab_append(&ab, buf, strlen(buf));
 
   ab_append(&ab, "\x1b[?25h", 6);
@@ -118,6 +137,7 @@ static int get_window_size(int *rows, int *cols) {
 void init_editor(void) {
   E.cx = 0;
   E.cy = 0;
+  E.rx = 0;
   E.rowoff = 0;
   E.coloff = 0;
   E.num_rows = 0;

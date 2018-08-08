@@ -28,6 +28,7 @@ enum editorKey {
 
 struct config {
   int cx, cy;
+  int rx;
   int rowoff, coloff;
   int screen_rows;
   int screen_cols;
