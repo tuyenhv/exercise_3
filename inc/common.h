@@ -2,6 +2,7 @@
 #define __COMMON_H
 
 #include <termios.h>
+#include <time.h>
 
 #define CTRL_KEY(k) ((k) & 0x1f)
 #define ABUF_INIT {NULL, 0}
@@ -36,6 +37,8 @@ struct config {
   int num_rows;
   erow_t *row;
   char *file_name;
+  char status_msg[80];
+  time_t status_msg_time;
   struct termios orig_termios;
 };
 

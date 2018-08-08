@@ -42,9 +42,7 @@ static void draw_rows(struct abuf *ab) {
     }
 
     ab_append(ab, "\x1b[K", 3);
-    if (y < E.screen_rows - 1){
-      ab_append(ab, "\r\n", 2);
-    }
+    ab_append(ab, "\r\n", 2);
   }
 }
 
@@ -82,6 +80,31 @@ static void scroll(void){
   }
 }
 
+static void draw_status_bar(struct abuf *ab) {
+  ab_append(ab, "\x1b[7m", 4);
+  char status[80], rstatus[80];
+  int len = snprintf(status, sizeof(status), "%.20s - %d lines",
+    E.file_name ? E.file_name : "[No Name]", E.num_rows);
+  int rlen = snprintf(rstatus, sizeof(rstatus), "%d%d",
+    E.cy + 1, E.num_rows);
+
+  if (len > E.screen_rows)
+    len = E.screen_rows;
+  ab_append(ab, status, len);
+
+  while (len < E.screen_cols) {
+    if (E.screen_cols - len == rlen) {
+      ab_append(ab, rstatus, rlen);
+      break;
+    } else {
+      ab_append(ab, " ", 1);
+      len++;
+    }
+  }
+  ab_append(ab, "\x1b[m", 3);
+  ab_append(ab, "\r\n", 2);
+}
+
 /* clear the screen */
 void refresh_screen(void) {
   scroll();
@@ -92,6 +115,8 @@ void refresh_screen(void) {
   ab_append(&ab, "\x1b[H", 3);
 
   draw_rows(&ab);
+  draw_status_bar(&ab);
+
   char buf[32];
   snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy - E.rowoff + 1, E.rx - E.coloff + 1);
   ab_append(&ab, buf, strlen(buf));
@@ -143,8 +168,11 @@ void init_editor(void) {
   E.num_rows = 0;
   E.row = NULL;
   E.file_name = NULL;
+  E.status_msg[0] = '\0';
+  E.status_msg_time = 0;
 
   if (get_window_size(&E.screen_rows, &E.screen_cols) == -1) die("get_window_size");
+  E.screen_rows -= 1;
 }
 
 void update_row(erow_t *row) {

@@ -28,6 +28,8 @@ int main(int argc, char *argv[]) {
   if (argc >= 2)
     editor_open(argv[1]);
 
+  set_status_message("HELP: Ctrl-Q = quit");
+  
   while (1) {
     refresh_screen();
     process_pressed_key();
