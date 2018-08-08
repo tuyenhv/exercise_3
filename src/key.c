@@ -94,6 +94,11 @@ void process_pressed_key(void) {
   int c = read_key();
 
   switch (c) {
+    case '\r':
+      break;
+  }
+
+  switch (c) {
     case CTRL_KEY('q'):
       /* Clear the screen before exitting */
       write(STDOUT_FILENO, "\x1b[2J", 4);
@@ -109,6 +114,11 @@ void process_pressed_key(void) {
     case END_KEY:
       if (E.cy < E.num_rows)
         E.cx = E.row[E.cy].size;
+      break;
+
+    case BACK_SPACE:
+    case CTRL_KEY('h'):
+    case DEL_KEY:
       break;
 
     case PAGE_UP:
@@ -132,6 +142,10 @@ void process_pressed_key(void) {
     case ARROW_LEFT:
     case ARROW_RIGHT:
       move_cursor(c);
+      break;
+
+    case CTRL_KEY('l'):
+    case '\x1b':
       break;
 
     default:
