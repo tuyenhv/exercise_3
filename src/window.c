@@ -142,6 +142,7 @@ void init_editor(void) {
   E.coloff = 0;
   E.num_rows = 0;
   E.row = NULL;
+  E.file_name = NULL;
 
   if (get_window_size(&E.screen_rows, &E.screen_cols) == -1) die("get_window_size");
 }
@@ -191,8 +192,10 @@ void append_row(char *s, size_t len) {
   E.num_rows++;
 }
 
-void editor_open(char *filename) {
-  FILE *fp = fopen(filename, "r");
+void editor_open(char *file_name) {
+  free(E.file_name);
+  E.file_name = strdup(file_name);
+  FILE *fp = fopen(file_name, "r");
   if (!fp) die("fopen: Cannot open the file");
 
   char *line = NULL;

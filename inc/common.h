@@ -35,6 +35,7 @@ struct config {
   int screen_cols;
   int num_rows;
   erow_t *row;
+  char *file_name;
   struct termios orig_termios;
 };
 

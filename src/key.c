@@ -107,6 +107,10 @@ void process_pressed_key(void) {
       exit(0);
       break;
 
+    case CTRL_KEY('s'):
+      save();
+      break;
+
     case HOME_KEY:
       E.cx = 0;
       break;

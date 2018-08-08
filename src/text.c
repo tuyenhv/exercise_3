@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include "../inc/common.h"
 #include "../inc/window.h"
 
@@ -19,4 +21,46 @@ void insert_char(int c) {
   }
   row_insert_char(&E.row[E.cy], E.cx, c);
   E.cx++;
+}
+
+char *row_to_string(int *buf_len) {
+  int tot_len = 0;
+  int j;
+  for (j = 0; j < E.num_rows; j++) {
+    tot_len += E.row[j].size + 1;
+  }
+  *buf_len = tot_len;
+
+  char *buf = malloc(tot_len);
+  char *p = buf;
+  for (j = 0; j < E.num_rows; j++) {
+    memcpy(p, E.row[j].chars, E.row[j].size);
+    p += E.row[j].size;
+    *p = '\n';
+    p++;
+  }
+
+  return buf;
+}
+
+void save(void) {
+  if (E.file_name == NULL)
+    return;
+
+  int len;
+  char *buf = row_to_string(&len);
+
+  int fd = open(E.file_name, O_RDWR | O_CREAT, 0644);
+  if (fd != -1) {
+    if (ftruncate(fd, len) != -1) {
+      if (write(fd, buf, len) == len) {
+        close(fd);
+        free(buf);
+        return;
+      }
+    }
+    close(fd);
+  }
+
+  free(buf);
 }
