@@ -64,7 +64,7 @@ static void scroll(void){
   if (E.cy < E.num_rows) {
     E.rx = row_cx_to_rx(&E.row[E.cy], E.cx);
   }
-  
+
   if (E.cy < E.rowoff) {
     E.rowoff = E.cy;
   }
@@ -146,7 +146,7 @@ void init_editor(void) {
   if (get_window_size(&E.screen_rows, &E.screen_cols) == -1) die("get_window_size");
 }
 
-static void update_row(erow_t *row) {
+void update_row(erow_t *row) {
   int tabs = 0;
   int j;
   for (j = 0; j < row->size; j++)
@@ -176,7 +176,7 @@ static void update_row(erow_t *row) {
   row->rsize = idx;
 }
 
-static void append_row(char *s, size_t len) {
+void append_row(char *s, size_t len) {
   E.row = realloc(E.row, sizeof(erow_t) * (E.num_rows + 1));
   int at = E.num_rows;
   E.row[at].size = len;

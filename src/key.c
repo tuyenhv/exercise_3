@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../inc/common.h"
+#include "../inc/text.h"
 
 static int read_key(void) {
   int nread;
@@ -131,6 +132,10 @@ void process_pressed_key(void) {
     case ARROW_LEFT:
     case ARROW_RIGHT:
       move_cursor(c);
+      break;
+
+    default:
+      insert_char(c);
       break;
   }
 }
