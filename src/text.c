@@ -19,6 +19,24 @@ static void row_insert_char(erow_t *row, int at, int c) {
   E.dirty++;
 }
 
+static void row_del_char(erow_t *row, int at) {
+  if (at < 0 || at >= row->size) return;
+  memmove(&row->chars[at], &row->chars[at + 1], row->size - at);
+  row->size--;
+  update_row(row);
+  E.dirty++;
+}
+
+void del_char(void) {
+  if (E.cy == E.num_rows) return;
+
+  erow_t *row = &E.row[E.cy];
+  if (E.cx > 0) {
+    row_del_char(row, E.cx - 1);
+    E.cx--;
+  }
+}
+
 void insert_char(int c) {
   if (E.cy == E.num_rows) {
     append_row("", 0);

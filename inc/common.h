@@ -7,6 +7,7 @@
 #define CTRL_KEY(k) ((k) & 0x1f)
 #define ABUF_INIT {NULL, 0}
 #define TAB_STOP 8
+#define FORCE_QUIT_TIMES 3
 
 typedef struct erow {
   int size;

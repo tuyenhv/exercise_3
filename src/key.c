@@ -5,6 +5,8 @@
 #include "../inc/common.h"
 #include "../inc/text.h"
 
+extern void del_char(void);
+
 static int read_key(void) {
   int nread;
   char c;
@@ -91,6 +93,7 @@ static void move_cursor(int key) {
 }
 
 void process_pressed_key(void) {
+  static int quit_times = FORCE_QUIT_TIMES;
   int c = read_key();
 
   switch (c) {
@@ -100,6 +103,12 @@ void process_pressed_key(void) {
 
   switch (c) {
     case CTRL_KEY('q'):
+      if (E.dirty && quit_times > 0) {
+        set_status_message("WARNING!!! File has unsaved changes. "
+          "Press Ctrl-Q %d more times to quit.", quit_times);
+        quit_times--;
+        return;
+      }
       /* Clear the screen before exitting */
       write(STDOUT_FILENO, "\x1b[2J", 4);
       write(STDOUT_FILENO, "\x1b[H", 3);
@@ -123,6 +132,9 @@ void process_pressed_key(void) {
     case BACK_SPACE:
     case CTRL_KEY('h'):
     case DEL_KEY:
+      if (c == DEL_KEY)
+        move_cursor(ARROW_RIGHT);
+      del_char();
       break;
 
     case PAGE_UP:
@@ -156,4 +168,6 @@ void process_pressed_key(void) {
       insert_char(c);
       break;
   }
+
+  quit_times = FORCE_QUIT_TIMES;
 }
