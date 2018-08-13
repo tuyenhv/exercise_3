@@ -7,7 +7,7 @@
 
 extern void del_char(void);
 
-static int read_key(void) {
+int read_key(void) {
   int nread;
   char c;
   while ((nread = read(STDIN_FILENO, &c, 1)) != 1) {
