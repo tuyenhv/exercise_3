@@ -8,6 +8,8 @@
 #include "../inc/common.h"
 #include "../inc/window.h"
 
+extern void row_append_string(erow_t *row, char *s, size_t len);
+extern void del_row(int at);
 static void row_insert_char(erow_t *row, int at, int c) {
   if (at < 0 || at > row->size)
     at = row->size;
@@ -29,11 +31,17 @@ static void row_del_char(erow_t *row, int at) {
 
 void del_char(void) {
   if (E.cy == E.num_rows) return;
+  if (E.cx == 0 && E.cy == 0) return;
 
   erow_t *row = &E.row[E.cy];
   if (E.cx > 0) {
     row_del_char(row, E.cx - 1);
     E.cx--;
+  } else {
+    E.cx = E.row[E.cy - 1].size;
+    row_append_string(&E.row[E.cy - 1], row->chars, row->size);
+    del_row(E.cy);
+    E.cy--;
   }
 }
 

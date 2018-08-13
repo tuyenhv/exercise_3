@@ -233,6 +233,28 @@ void append_row(char *s, size_t len) {
   E.dirty++;
 }
 
+static void free_row(erow_t *row) {
+  free(row->render);
+  free(row->chars);
+}
+
+void del_row(int at) {
+  if (at < 0 || at >= E.num_rows) return;
+  free_row(&E.row[at]);
+  memmove(&E.row[at], &E.row[at + 1], sizeof(erow_t) * (E.num_rows - at - 1));
+  E.num_rows--;
+  E.dirty++;
+}
+
+void row_append_string(erow_t *row, char *s, size_t len) {
+  row->chars = realloc(row->chars, row->size + len + 1);
+  memcpy(&row->chars[row->size], s, len);
+  row->size += len;
+  row->chars[row->size] = '\0';
+  update_row(row);
+  E.dirty++;
+}
+
 void editor_open(char *file_name) {
   free(E.file_name);
   E.file_name = strdup(file_name);
