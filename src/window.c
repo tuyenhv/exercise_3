@@ -194,17 +194,11 @@ void update_row(erow_t *row) {
     if (row->chars[j] == '\t') tabs++;
 
   free(row->render);
-  printf ("row->size = %d, tabs = %d \r\n", row->size, tabs);
   row->render = malloc((row->size) + tabs * (TAB_STOP - 1) + 1);
-  if (row->render == NULL) {
-    printf("malloc failed. \r\n");
-  } else {
-    printf("malloc passed. \r\n");
-  }
 
   int idx = 0;
   for (j = 0; j < row->size; j++) {
-    if (row->chars[j] == 't') {
+    if (row->chars[j] == '\t') {
       row->render[idx++] = ' ';
       while (idx % TAB_STOP != 0) {
         row->render[idx++] = ' ';
