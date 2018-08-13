@@ -217,9 +217,12 @@ void update_row(erow_t *row) {
   row->rsize = idx;
 }
 
-void append_row(char *s, size_t len) {
+void insert_row(int at, char *s, size_t len) {
+  if (at < 0 || at > E.num_rows) return;
+
   E.row = realloc(E.row, sizeof(erow_t) * (E.num_rows + 1));
-  int at = E.num_rows;
+  memmove(&E.row[at + 1], &E.row[at], sizeof(erow_t) * (E.num_rows - at));
+
   E.row[at].size = len;
   E.row[at].chars = malloc(len + 1);
   memcpy(E.row[at].chars, s, len);
@@ -268,7 +271,7 @@ void editor_open(char *file_name) {
     while (line_len > 0 && (line[line_len - 1] == '\n' || line[line_len - 1] == '\r')) {
       line_len--;
     }
-    append_row(line, line_len);
+    insert_row(E.num_rows, line, line_len);
   }
   free(line);
   fclose(fp);

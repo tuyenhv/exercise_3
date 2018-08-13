@@ -47,10 +47,25 @@ void del_char(void) {
 
 void insert_char(int c) {
   if (E.cy == E.num_rows) {
-    append_row("", 0);
+    insert_row(E.num_rows, "", 0);
   }
   row_insert_char(&E.row[E.cy], E.cx, c);
   E.cx++;
+}
+
+void insert_new_line(void) {
+  if (E.cx == 0) {
+    insert_row(E.cy, "", 0);
+  } else {
+    erow_t *row = &E.row[E.cy];
+    insert_row(E.cy + 1, &row->chars[E.cx], row->size - E.cx);
+    row = &E.row[E.cy];
+    row->size = E.cx;
+    row->chars[row->size] = '\0';
+    update_row(row);
+  }
+  E.cy++;
+  E.cx = 0;
 }
 
 char *row_to_string(int *buf_len) {
