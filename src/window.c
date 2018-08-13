@@ -83,8 +83,9 @@ static void scroll(void){
 static void draw_status_bar(struct abuf *ab) {
   ab_append(ab, "\x1b[7m", 4);
   char status[80], rstatus[80];
-  int len = snprintf(status, sizeof(status), "%.20s - %d lines",
-    E.file_name ? E.file_name : "[No Name]", E.num_rows);
+  int len = snprintf(status, sizeof(status), "%.20s - %d lines %s",
+    E.file_name ? E.file_name : "[No Name]", E.num_rows,
+    E.dirty ? "(modified)" : "");
   int rlen = snprintf(rstatus, sizeof(rstatus), "%d%d",
     E.cy + 1, E.num_rows);
 
@@ -177,6 +178,7 @@ void init_editor(void) {
   E.coloff = 0;
   E.num_rows = 0;
   E.row = NULL;
+  E.dirty = 0;
   E.file_name = NULL;
   E.status_msg[0] = '\0';
   E.status_msg_time = 0;
@@ -228,6 +230,7 @@ void append_row(char *s, size_t len) {
   update_row(&E.row[at]);
 
   E.num_rows++;
+  E.dirty++;
 }
 
 void editor_open(char *file_name) {
@@ -247,4 +250,5 @@ void editor_open(char *file_name) {
   }
   free(line);
   fclose(fp);
+  E.dirty = 0;
 }

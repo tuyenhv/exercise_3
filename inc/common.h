@@ -36,6 +36,7 @@ struct config {
   int screen_cols;
   int num_rows;
   erow_t *row;
+  int dirty;
   char *file_name;
   char status_msg[80];
   time_t status_msg_time;

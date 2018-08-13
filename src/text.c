@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <errno.h>
 #include "../inc/common.h"
 #include "../inc/window.h"
 
@@ -15,6 +16,7 @@ static void row_insert_char(erow_t *row, int at, int c) {
   row->size++;
   row->chars[at] = c;
   update_row(row);
+  E.dirty++;
 }
 
 void insert_char(int c) {
@@ -45,6 +47,14 @@ char *row_to_string(int *buf_len) {
   return buf;
 }
 
+void set_status_message (const char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(E.status_msg, sizeof(E.status_msg), fmt, ap);
+  va_end(ap);
+  E.status_msg_time = time(NULL);
+}
+
 void save(void) {
   if (E.file_name == NULL)
     return;
@@ -58,6 +68,8 @@ void save(void) {
       if (write(fd, buf, len) == len) {
         close(fd);
         free(buf);
+        E.dirty = 0;
+        set_status_message("%d bytes written to disk", len);
         return;
       }
     }
@@ -65,12 +77,5 @@ void save(void) {
   }
 
   free(buf);
-}
-
-void set_status_message (const char *fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  vsnprintf(E.status_msg, sizeof(E.status_msg), fmt, ap);
-  va_end(ap);
-  E.status_msg_time = time(NULL);
+  set_status_message("Cannot save the file! Error: %s", strerror(errno));
 }
