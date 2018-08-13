@@ -98,6 +98,7 @@ void process_pressed_key(void) {
 
   switch (c) {
     case '\r':
+      insert_new_line();
       break;
   }
 
