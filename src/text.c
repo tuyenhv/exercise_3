@@ -10,15 +10,28 @@
 #include "../inc/window.h"
 #include "../inc/text.h"
 
+extern bool insert_flag;
 extern int read_key(void);
 extern void row_append_string(erow_t *row, char *s, size_t len);
 extern void del_row(int at);
+
 static void row_insert_char(erow_t *row, int at, int c) {
-  if (at < 0 || at > row->size)
+  if (at < 0 || at > row->size - 1)
     at = row->size;
   row->chars = realloc(row->chars, row->size + 2);
   memmove(&row->chars[at + 1], &row->chars[at], row->size - at + 1);
   row->size++;
+  row->chars[at] = c;
+  update_row(row);
+  E.dirty++;
+}
+
+static void row_overwrite_char(erow_t *row, int at, int c) {
+  if (at < 0 || at >= row->size){
+    at = row->size;
+    row->chars = realloc(row->chars, row->size + 2);
+    row->size++;
+  }
   row->chars[at] = c;
   update_row(row);
   E.dirty++;
@@ -52,7 +65,10 @@ void insert_char(int c) {
   if (E.cy == E.num_rows) {
     insert_row(E.num_rows, "", 0);
   }
-  row_insert_char(&E.row[E.cy], E.cx, c);
+  if (insert_flag)
+    row_insert_char(&E.row[E.cy], E.cx, c);
+  else
+    row_overwrite_char(&E.row[E.cy], E.cx, c);
   E.cx++;
 }
 

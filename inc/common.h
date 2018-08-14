@@ -18,6 +18,7 @@ typedef struct erow {
 
 enum editorKey {
   ENTER = 13,
+  INSERT = 45,
   BACK_SPACE = 127,
   ARROW_LEFT = 1000,
   ARROW_RIGHT,

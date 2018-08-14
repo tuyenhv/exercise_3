@@ -2,10 +2,12 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "../inc/common.h"
 #include "../inc/text.h"
 
 extern void del_char(void);
+bool insert_flag = true;
 
 int read_key(void) {
   int nread;
@@ -24,6 +26,7 @@ int read_key(void) {
         if (seq[2] == '~') {
           switch (seq[1]) {
             case '1': return HOME_KEY;
+            case '2': return INSERT;
             case '3': return DEL_KEY;
             case '4': return END_KEY;
             case '5': return PAGE_UP;
@@ -95,8 +98,11 @@ static void move_cursor(int key) {
 void process_pressed_key(void) {
   static int quit_times = FORCE_QUIT_TIMES;
   int c = read_key();
-
   switch (c) {
+    case INSERT:
+      insert_flag = !insert_flag;
+      break;
+
     case ENTER:
       insert_new_line();
       break;
