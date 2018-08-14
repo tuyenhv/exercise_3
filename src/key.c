@@ -97,12 +97,10 @@ void process_pressed_key(void) {
   int c = read_key();
 
   switch (c) {
-    case '\r':
+    case ENTER:
       insert_new_line();
       break;
-  }
 
-  switch (c) {
     case CTRL_KEY('q'):
       if (E.dirty && quit_times > 0) {
         set_status_message("WARNING!!! File has unsaved changes. "
