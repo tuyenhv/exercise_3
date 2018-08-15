@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <ctype.h>
+#include <stdbool.h>
 #include "../inc/common.h"
 #include "../inc/window.h"
 #include "../inc/text.h"
