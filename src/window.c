@@ -154,7 +154,7 @@ static int get_cursor_position(int *rows, int *cols) {
 }
 
 /* Get the size of the terminal */
-static int get_window_size(int *rows, int *cols) {
+int get_window_size(int *rows, int *cols) {
   struct winsize ws;
 
   if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
@@ -165,24 +165,6 @@ static int get_window_size(int *rows, int *cols) {
     *rows = ws.ws_row;
     return 0;
   }
-}
-
-/* Init value for E structure */
-void init_editor(void) {
-  E.cx = 0;
-  E.cy = 0;
-  E.rx = 0;
-  E.rowoff = 0;
-  E.coloff = 0;
-  E.num_rows = 0;
-  E.row = NULL;
-  E.dirty = 0;
-  E.file_name = NULL;
-  E.status_msg[0] = '\0';
-  E.status_msg_time = 0;
-
-  if (get_window_size(&E.screen_rows, &E.screen_cols) == -1) die("get_window_size");
-  E.screen_rows -= 2;
 }
 
 void update_row(erow_t *row) {
