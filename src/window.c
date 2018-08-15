@@ -8,9 +8,6 @@
 #include "../inc/window.h"
 #include "../inc/common.h"
 
-struct config E;
-//extern void ab_append(struct abuf *ab, const char *s, int len);
-
 /* Draw a column of tildes (~) on the left hand side of the screen */
 static void draw_rows(struct abuf *ab) {
   int y;
@@ -212,6 +209,7 @@ void update_row(erow_t *row) {
   row->rsize = idx;
 }
 
+/* Insert strings to a line at in the file, length of line is len, pointer from s.*/
 void insert_row(int at, char *s, size_t len) {
   if (at < 0 || at > E.num_rows) return;
 

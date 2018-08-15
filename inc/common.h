@@ -51,7 +51,7 @@ struct abuf {
   int len;
 };
 
-extern struct config E;
+struct config E;
 
 void ab_append(struct abuf *ab, const char *s, int len);
 void die(const char *);
