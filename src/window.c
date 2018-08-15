@@ -103,7 +103,7 @@ static void draw_status_bar(struct abuf *ab) {
   ab_append(ab, "\r\n", 2);
 }
 
-void draw_message_bar(struct abuf *ab) {
+static void draw_message_bar(struct abuf *ab) {
   ab_append(ab, "\x1b[K", 3);
   int msg_len = strlen(E.status_msg);
   if (msg_len > E.screen_cols)
