@@ -40,6 +40,33 @@ static void init_editor(void) {
   E.screen_rows -= 2;
 }
 
+/* Start opening and editting the file.*/
+void editor_open(char *file_name) {
+  free(E.file_name);
+  /* strdup returns a pointer to a null-terminated byte string. The memory obtained is done
+   * dynamically using malloc and it can be freed using free(). */
+  E.file_name = strdup(file_name);
+  FILE *fp = fopen(file_name, "r");
+  /* Fix this:
+   * If file_name does not exist, print a error and exit. 
+   * This is quite weird and we should open a new file instead of. */
+  if (!fp) die("fopen: Cannot open the file");
+
+  /* Refer man-pan of getline() for more detail of implementing like below. */
+  char *line = NULL;
+  size_t line_cap = 0;
+  ssize_t line_len;
+  while ((line_len = getline(&line, &line_cap, fp)) != -1) {
+    while (line_len > 0 && (line[line_len - 1] == '\n' || line[line_len - 1] == '\r')) {
+      line_len--;
+    }
+    insert_row(E.num_rows, line, line_len);
+  }
+  free(line);
+  fclose(fp);
+  E.dirty = 0;
+}
+
 int main(int argc, char *argv[]) {
   enable_rawmode();
   init_editor();
