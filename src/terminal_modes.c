@@ -11,6 +11,8 @@ static void disable_rawmode(void){
     die("tcsetattr");
 }
 
+/* Change terminal mode from cooked mode by default to raw mode. Also, change
+ * some other flags for handling some special keys. */
 void enable_rawmode(void){
   if (tcgetattr(STDIN_FILENO, &E.orig_termios) == -1) die("tcgetattr");
   /* Before exit the program, we need to revert to the cooked terminal mode */
@@ -41,6 +43,7 @@ void enable_rawmode(void){
   raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
   raw.c_cc[VMIN] = 0;
   raw.c_cc[VTIME] = 1;
-
+  /* After changing values of attributes of raw struct, apply changing to the
+   * current file descriptor.*/
   if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) die("tcsetattr");
 }
