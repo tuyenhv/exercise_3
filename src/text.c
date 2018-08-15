@@ -16,10 +16,13 @@ extern int read_key(void);
 extern void row_append_string(erow_t *row, char *s, size_t len);
 extern void del_row(int at);
 
+/* Insert a charater to at position on a row. */
 static void row_insert_char(erow_t *row, int at, int c) {
   if (at < 0 || at > row->size - 1)
     at = row->size;
   row->chars = realloc(row->chars, row->size + 2);
+  /* Move content from at posititon and after it to at + 1 position,
+   * then insert the c character to at position. */
   memmove(&row->chars[at + 1], &row->chars[at], row->size - at + 1);
   row->size++;
   row->chars[at] = c;
@@ -28,6 +31,7 @@ static void row_insert_char(erow_t *row, int at, int c) {
 }
 
 static void row_overwrite_char(erow_t *row, int at, int c) {
+  /* New line or at is at the end of line. */
   if (at < 0 || at >= row->size){
     at = row->size;
     row->chars = realloc(row->chars, row->size + 2);
@@ -55,6 +59,8 @@ void del_char(void) {
     row_del_char(row, E.cx - 1);
     E.cx--;
   } else {
+    /* If the cursor is at the begging of line, append the current line to the
+     * before line. */
     E.cx = E.row[E.cy - 1].size;
     row_append_string(&E.row[E.cy - 1], row->chars, row->size);
     del_row(E.cy);
@@ -88,6 +94,7 @@ void insert_new_line(void) {
   E.cx = 0;
 }
 
+/* Copy all content of the file to buffer. */
 char *row_to_string(int *buf_len) {
   int tot_len = 0;
   int j;
@@ -162,6 +169,7 @@ char *prompt(char *prompt) {
       if (buf_len != 0)
         buf[--buf_len] = '\0';
     } else if (c == '\x1b') {
+      /* Press Esc to cancel input prompt. */
       set_status_message("");
       free(buf);
       return NULL;
