@@ -38,11 +38,13 @@ static void draw_rows(struct abuf *ab) {
       ab_append(ab, &E.row[file_row].render[E.coloff], len);
     }
 
+    /* Clear screen */
     ab_append(ab, "\x1b[K", 3);
     ab_append(ab, "\r\n", 2);
   }
 }
 
+/* Handle tab character. */
 static int row_cx_to_rx (erow_t *row, int cx) {
   int rx = 0;
   int j;
@@ -112,7 +114,7 @@ static void draw_message_bar(struct abuf *ab) {
     ab_append(ab, E.status_msg, msg_len);
 }
 
-/* clear the screen */
+/* update the screen */
 void refresh_screen(void) {
   scroll();
 
