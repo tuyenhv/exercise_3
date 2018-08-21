@@ -7,6 +7,8 @@
 #include "../inc/text.h"
 
 extern void del_char(void);
+extern void find(void);
+
 bool insert_flag = true;
 
 int read_key(void) {
@@ -172,6 +174,10 @@ void process_pressed_key(void) {
 
     case CTRL_KEY('s'):
       save();
+      break;
+
+    case CTRL_KEY('f'):
+      find();
       break;
 
     case HOME_KEY:

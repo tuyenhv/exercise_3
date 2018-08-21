@@ -167,7 +167,7 @@ void set_status_message (const char *fmt, ...) {
   E.status_msg_time = time(NULL);
 }
 
-static char *prompt(char *prompt) {
+static char *prompt(char *prompt, void (*callback)(char *, int)) {
   size_t buf_size = 128;
   char *buf = malloc(buf_size);
 
@@ -185,11 +185,13 @@ static char *prompt(char *prompt) {
     } else if (c == '\x1b') {
       /* Press Esc to cancel input prompt. */
       set_status_message("");
+      if (callback) callback(buf, c);
       free(buf);
       return NULL;
     } else if (c == '\r') {
       if (buf_len != 0) {
         set_status_message("");
+        if (callback) callback(buf, c);
         return buf;
       }
     }else if (!iscntrl(c) && c < 128) {
@@ -200,12 +202,14 @@ static char *prompt(char *prompt) {
       buf[buf_len++] = c;
       buf[buf_len] = '\0';
     }
+
+    if (callback) callback(buf, c);
   }
 }
 
 void save(void) {
   if (E.file_name == NULL){
-    E.file_name = prompt("Save as: %s (ESC to cancel)");
+    E.file_name = prompt("Save as: %s (ESC to cancel)", NULL);
     if (E.file_name == NULL) {
       set_status_message("save aborted");
       return;
@@ -251,4 +255,42 @@ void insert_row(int at, char *s, size_t len) {
 
   E.num_rows++;
   E.dirty++;
+}
+
+static int row_rx_to_cx(erow_t *row, int rx) {
+  int cur_rx = 0;
+  int cx;
+  for (cx = 0; cx < row->size; cx++) {
+    if (row->chars[cx] == '\t')
+      cur_rx += (TAB_STOP - 1) - (cur_rx % TAB_STOP);
+    cur_rx++;
+    if (cur_rx > rx) return cx;
+  }
+  return cx;
+}
+
+void find_callback(char *query, int key) {
+  //if (key == '\r' || key == '\x1b')
+  //if (key == '\r')
+  //  return;
+
+  int i;
+  for (i = 0; i < E.num_rows; i++) {
+    erow_t *row = &E.row[i];
+    char *match = strstr(row->render, query);
+    if (match) {
+      E.cy = i;
+      E.cx = row_rx_to_cx(row, match - row->render);
+      E.rowoff = E.num_rows;
+      break;
+    }
+  }
+  free(query);
+}
+
+void find() {
+  char *query = prompt("Search: %s (ESC to cancel)", find_callback);
+
+  if (query)
+    free(query);
 }
